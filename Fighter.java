@@ -16,7 +16,7 @@ import javafx.event.*;
 import javafx.scene.input.*;
 import javafx.scene.text.*;
 public class Fighter{
-	private int health, damage, speed, xPos, yPos;
+	private int health, maxHealth, damage, speed, xPos, yPos;
 	private double critChance, maxCrit;
 
 	private Image start, punch, kick, crouch, startL, punchL, kickL, crouchL;
@@ -27,15 +27,16 @@ public class Fighter{
 	private int jumpTime, jumpSpeed;
 
 	private boolean isPunching, isKicking;
-	private int punchDelay, kickDelay;
+	private int punchDelay, kickDelay, punchTime, kickTime;
 
 
 	public Fighter(boolean l){
 		health = 3000;
-		damage = 50;
+		maxHealth = 3000;
+		damage = 5;
 		speed = 10;
 		critChance = .2;
-		maxCrit = 1;
+		maxCrit = 3;
 		isJumping = false;
 		isPunching = false;
 		isKicking = false;
@@ -155,10 +156,25 @@ public class Fighter{
 	public void setKickDelay(int x){
 		kickDelay = x;
 	}
+	public int getPunchTime(){
+		return punchTime;
+	}
+	public void setPunchTime(int x){
+		punchTime = x;
+	}
+	public int getKickTime(){
+		return kickTime;
+	}
+	public void setKickTime(int x){
+		kickTime = x;
+	}
 
 	//Health and damage
 	public int getHealth(){
 		return health;
+	}
+	public int getMaxHealth(){
+		return maxHealth;
 	}
 	public void setHealth(int x){
 		health = x;
