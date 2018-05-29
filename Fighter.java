@@ -29,6 +29,9 @@ public class Fighter{
 	private boolean isPunching, isKicking;
 	private int punchDelay, kickDelay, punchTime, kickTime;
 
+	boolean demobilized;
+	int demobilizedTime, demobilizedDelay;
+
 
 	public Fighter(boolean l){
 		health = 3000;
@@ -40,6 +43,8 @@ public class Fighter{
 		isJumping = false;
 		isPunching = false;
 		isKicking = false;
+		demobilized = false;
+
 		if(l) {
 			start = new Image("defaultStart.png");
 			punch = new Image("defaultPunch.png");
@@ -187,5 +192,25 @@ public class Fighter{
 	}
 	public double getMaxCrit(){
 		return maxCrit;
+	}
+
+	//demobilzed
+	public boolean getDemobilized(){
+		return demobilized;
+	}
+	public void setDemobilized(boolean b){
+		demobilized = b;
+	}
+	public int getDemTime(){
+		return demobilizedTime;
+	}
+	public void setDemTime(int t){
+		demobilizedTime = t;
+	}
+	public int getDemDelay(){
+		return demobilizedDelay;
+	}
+	public void setDemDelay(int t){
+		demobilizedDelay = t;
 	}
 }

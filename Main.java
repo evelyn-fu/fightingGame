@@ -85,6 +85,8 @@ public class Main extends Application implements EventHandler<InputEvent>
 				Rectangle2D hitbx2 = new Rectangle2D(500+fighter2.getXpos(),100-fighter2.getYpos(),stance2.getWidth(),stance2.getHeight());
 				if (hitbx1.intersects(hitbx2) && fighter2.isPunching()) {
 					System.out.println("Fighter 2 punched Fighter 1");
+					fighter1.setDemTime(0); // add if statement to check delay, copy paste for fighter 2
+					fighter1.setDemobilized(false);
 					double crit = Math.random();
 					if(crit < fighter1.getCritChance()){
 						System.out.println("CRIT");
@@ -108,6 +110,8 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 				if (hitbx1.intersects(hitbx2) && fighter2.isKicking()) {
 					System.out.println("Fighter 2 kicked Fighter 1");
+					fighter1.setDemTime(0);
+					fighter1.setDemobilized(false);
 					double crit = Math.random();
 					if(crit < fighter1.getCritChance()){
 						int damage = (int)(fighter1.getDamage() * (1.5+(Math.random()*(fighter1.getMaxCrit()-.1))) * (Math.random()+.5));
@@ -125,6 +129,19 @@ public class Main extends Application implements EventHandler<InputEvent>
 					}
 					else
 						fighter1.setHealth(fighter1.getHealth() - fighter2.getDamage());
+				}
+
+				//Demobilization
+				if(fighter1.getDemTime() > 0){
+					fighter1.setDemTime(fighter1.getDemTime() + 1);
+					if(fighter2.getXpos() > fighter1.getXpos())
+						fighter1.move(-1, 0);
+					else fighter1.move(+1, 0);
+					if(fighter1.getDemTime() == 5){
+						fighter1.setDemTime(0);
+						fighter1.setDemobilized(false);
+						fighter1.setDemDelay(1);
+					}
 				}
 
 				//Punching and kicking delay
@@ -199,7 +216,6 @@ public class Main extends Application implements EventHandler<InputEvent>
 				if(fighter2.getXpos() > (300 - stance2.getWidth()) || fighter2.getXpos() < -490)
 					xSpeed2 = 0;
 
-				System.out.println("Fighter 1: "+fighter1.getHealth()+" Fighter 2: "+fighter2.getHealth());
 			}
 			else if(fighter1.getHealth() <= 0 && fighter2.getHealth() <= 0){
 				if(fighter1.getHealth() > fighter2.getHealth()){
@@ -253,177 +269,181 @@ public class Main extends Application implements EventHandler<InputEvent>
 	public void handle(final InputEvent event){
 		if(event instanceof KeyEvent){
 			//Fighter 1 movements
-			if(fighter1.getXpos() > -170){
-				if (((KeyEvent)event).getCode() == KeyCode.A ){
-					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-						if(!fighter1.getLeft()){
-							fighter1.setLeft(true);
-							if(stance1str.equals("start"))
-								stance1 = fighter1.getStart();
-							if(stance1str.equals("crouch"))
-								stance1 = fighter1.getCrouch();
-							if(stance1str.equals("punch"))
-								stance1 = fighter1.getPunch();
-							if(stance1str.equals("kick"))
-								stance1 = fighter1.getKick();
+			if(!fighter1.getDemobilized()){
+				if(fighter1.getXpos() > -170){
+					if (((KeyEvent)event).getCode() == KeyCode.A ){
+						if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+							if(!fighter1.getLeft()){
+								fighter1.setLeft(true);
+								if(stance1str.equals("start"))
+									stance1 = fighter1.getStart();
+								if(stance1str.equals("crouch"))
+									stance1 = fighter1.getCrouch();
+								if(stance1str.equals("punch"))
+									stance1 = fighter1.getPunch();
+								if(stance1str.equals("kick"))
+									stance1 = fighter1.getKick();
+							}
+							xSpeed1 = fighter1.getSpeed();
 						}
-						xSpeed1 = fighter1.getSpeed();
+						if(event.getEventType().toString().equals("KEY_RELEASED") ){
+							xSpeed1 = 0;
+						}
+					}
+				}
+				if(fighter1.getXpos() < (620 - stance1.getWidth())){
+					if (((KeyEvent)event).getCode() == KeyCode.D ){
+						if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+							if(fighter1.getLeft()){
+								fighter1.setLeft(false);
+								if(stance1str.equals("start"))
+									stance1 = fighter1.getStart();
+								if(stance1str.equals("crouch"))
+									stance1 = fighter1.getCrouch();
+								if(stance1str.equals("punch"))
+									stance1 = fighter1.getPunch();
+								if(stance1str.equals("kick"))
+									stance1 = fighter1.getKick();
+							}
+							xSpeed1 = -fighter1.getSpeed();
+						}
+						if(event.getEventType().toString().equals("KEY_RELEASED") ){
+							xSpeed1 = 0;
+						}
+					}
+				}
+				if (((KeyEvent)event).getCode() == KeyCode.W ){
+					if(!fighter1.getIsJumping()){
+						if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+							fighter1.setIsJumping(true);
+						}
+					}
+				}
+				if (((KeyEvent)event).getCode() == KeyCode.S ){
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+						stance1str = "crouch";
+						stance1 = fighter1.getCrouch();
 					}
 					if(event.getEventType().toString().equals("KEY_RELEASED") ){
-						xSpeed1 = 0;
+						stance1str = "start";
+						stance1 = fighter1.getStart();
 					}
-				}
-			}
-			if(fighter1.getXpos() < (620 - stance1.getWidth())){
-				if (((KeyEvent)event).getCode() == KeyCode.D ){
-					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-						if(fighter1.getLeft()){
-							fighter1.setLeft(false);
-							if(stance1str.equals("start"))
-								stance1 = fighter1.getStart();
-							if(stance1str.equals("crouch"))
-								stance1 = fighter1.getCrouch();
-							if(stance1str.equals("punch"))
-								stance1 = fighter1.getPunch();
-							if(stance1str.equals("kick"))
-								stance1 = fighter1.getKick();
-						}
-						xSpeed1 = -fighter1.getSpeed();
-					}
-					if(event.getEventType().toString().equals("KEY_RELEASED") ){
-						xSpeed1 = 0;
-					}
-				}
-			}
-			if (((KeyEvent)event).getCode() == KeyCode.W ){
-				if(!fighter1.getIsJumping()){
-					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-						fighter1.setIsJumping(true);
-					}
-				}
-			}
-			if (((KeyEvent)event).getCode() == KeyCode.S ){
-				if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-					stance1str = "crouch";
-					stance1 = fighter1.getCrouch();
-				}
-				if(event.getEventType().toString().equals("KEY_RELEASED") ){
-					stance1str = "start";
-					stance1 = fighter1.getStart();
-				}
 
-			}
-			if (((KeyEvent)event).getCode() == KeyCode.E && fighter1.getPunchDelay() == 0 && fighter1.getPunchTime() == 0){
-				if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-					stance1str = "punch";
-					stance1 = fighter1.getPunch();
-					fighter1.setPunching(true);
-					fighter1.setPunchTime(1);
 				}
-				if(event.getEventType().toString().equals("KEY_RELEASED") ){
-					stance1str = "start";
-					stance1 = fighter1.getStart();
-					fighter1.setPunching(false);
+				if (((KeyEvent)event).getCode() == KeyCode.E && fighter1.getPunchDelay() == 0 && fighter1.getPunchTime() == 0){
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+						stance1str = "punch";
+						stance1 = fighter1.getPunch();
+						fighter1.setPunching(true);
+						fighter1.setPunchTime(1);
+					}
+					if(event.getEventType().toString().equals("KEY_RELEASED") ){
+						stance1str = "start";
+						stance1 = fighter1.getStart();
+						fighter1.setPunching(false);
+					}
 				}
-			}
-			if (((KeyEvent)event).getCode() == KeyCode.R && fighter1.getKickDelay() == 0 && fighter1.getKickTime() == 0){
-				if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-					stance1str = "kick";
-					stance1 = fighter1.getKick();
-					fighter1.setKicking(true);
-					fighter1.setKickTime(1);
-				}
-				if(event.getEventType().toString().equals("KEY_RELEASED") ){
-					stance1str = "start";
-					stance1 = fighter1.getStart();
-					fighter1.setKicking(false);
+				if (((KeyEvent)event).getCode() == KeyCode.R && fighter1.getKickDelay() == 0 && fighter1.getKickTime() == 0){
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+						stance1str = "kick";
+						stance1 = fighter1.getKick();
+						fighter1.setKicking(true);
+						fighter1.setKickTime(1);
+					}
+					if(event.getEventType().toString().equals("KEY_RELEASED") ){
+						stance1str = "start";
+						stance1 = fighter1.getStart();
+						fighter1.setKicking(false);
+					}
 				}
 			}
 			//Fighter 2 movements
-			if(fighter2.getXpos() > -490){
-				if (((KeyEvent)event).getCode() == KeyCode.LEFT ){
-					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-						if(fighter2.getLeft()){
-							fighter2.setLeft(false);
-							if(stance2str.equals("start"))
-								stance2 = fighter2.getStart();
-							if(stance2str.equals("crouch"))
-								stance2 = fighter2.getCrouch();
-							if(stance2str.equals("punch"))
-								stance2 = fighter2.getPunch();
-							if(stance2str.equals("kick"))
-								stance2 = fighter2.getKick();
+			if(!fighter2.getDemobilized()){
+				if(fighter2.getXpos() > -490){
+					if (((KeyEvent)event).getCode() == KeyCode.LEFT ){
+						if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+							if(fighter2.getLeft()){
+								fighter2.setLeft(false);
+								if(stance2str.equals("start"))
+									stance2 = fighter2.getStart();
+								if(stance2str.equals("crouch"))
+									stance2 = fighter2.getCrouch();
+								if(stance2str.equals("punch"))
+									stance2 = fighter2.getPunch();
+								if(stance2str.equals("kick"))
+									stance2 = fighter2.getKick();
+							}
+							xSpeed2 = fighter2.getSpeed();
 						}
-						xSpeed2 = fighter2.getSpeed();
+						if(event.getEventType().toString().equals("KEY_RELEASED") ){
+							xSpeed2 = 0;
+						}
+					}
+				}
+				if(fighter2.getXpos() < (300 - stance1.getWidth())){
+					if (((KeyEvent)event).getCode() == KeyCode.RIGHT ){
+						if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+							if(!fighter2.getLeft()){
+								fighter2.setLeft(true);
+								if(stance2str.equals("start"))
+									stance2 = fighter2.getStart();
+								if(stance2str.equals("crouch"))
+									stance2 = fighter2.getCrouch();
+								if(stance2str.equals("punch"))
+									stance2 = fighter2.getPunch();
+								if(stance2str.equals("kick"))
+									stance2 = fighter2.getKick();
+							}
+							xSpeed2 = -fighter2.getSpeed();
+						}
+						if(event.getEventType().toString().equals("KEY_RELEASED") ){
+							xSpeed2 = 0;
+						}
+					}
+				}
+				if (((KeyEvent)event).getCode() == KeyCode.UP ){
+					if(!fighter2.getIsJumping()){
+						if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+							fighter2.setIsJumping(true);
+						}
+					}
+				}
+				if (((KeyEvent)event).getCode() == KeyCode.DOWN ){
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+						stance2str = "crouch";
+						stance2 = fighter2.getCrouch();
 					}
 					if(event.getEventType().toString().equals("KEY_RELEASED") ){
-						xSpeed2 = 0;
+						stance2str = "start";
+						stance2 = fighter2.getStart();
 					}
-				}
-			}
-			if(fighter2.getXpos() < (300 - stance1.getWidth())){
-				if (((KeyEvent)event).getCode() == KeyCode.RIGHT ){
-					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-						if(!fighter2.getLeft()){
-							fighter2.setLeft(true);
-							if(stance2str.equals("start"))
-								stance2 = fighter2.getStart();
-							if(stance2str.equals("crouch"))
-								stance2 = fighter2.getCrouch();
-							if(stance2str.equals("punch"))
-								stance2 = fighter2.getPunch();
-							if(stance2str.equals("kick"))
-								stance2 = fighter2.getKick();
-						}
-						xSpeed2 = -fighter2.getSpeed();
-					}
-					if(event.getEventType().toString().equals("KEY_RELEASED") ){
-						xSpeed2 = 0;
-					}
-				}
-			}
-			if (((KeyEvent)event).getCode() == KeyCode.UP ){
-				if(!fighter2.getIsJumping()){
-					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-						fighter2.setIsJumping(true);
-					}
-				}
-			}
-			if (((KeyEvent)event).getCode() == KeyCode.DOWN ){
-				if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-					stance2str = "crouch";
-					stance2 = fighter2.getCrouch();
-				}
-				if(event.getEventType().toString().equals("KEY_RELEASED") ){
-					stance2str = "start";
-					stance2 = fighter2.getStart();
-				}
 
-			}
-			if (((KeyEvent)event).getCode() == KeyCode.SLASH && fighter2.getPunchDelay() == 0 && fighter2.getPunchTime() == 0){
-				if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-					stance2str = "punch";
-					stance2 = fighter2.getPunch();
-					fighter2.setPunching(true);
-					fighter2.setPunchTime(1);
 				}
-				if(event.getEventType().toString().equals("KEY_RELEASED") ){
-					stance2str = "start";
-					stance2 = fighter2.getStart();
-					fighter2.setPunching(false);
+				if (((KeyEvent)event).getCode() == KeyCode.SLASH && fighter2.getPunchDelay() == 0 && fighter2.getPunchTime() == 0){
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+						stance2str = "punch";
+						stance2 = fighter2.getPunch();
+						fighter2.setPunching(true);
+						fighter2.setPunchTime(1);
+					}
+					if(event.getEventType().toString().equals("KEY_RELEASED") ){
+						stance2str = "start";
+						stance2 = fighter2.getStart();
+						fighter2.setPunching(false);
+					}
 				}
-			}
-			if (((KeyEvent)event).getCode() == KeyCode.PERIOD && fighter2.getKickDelay() == 0 && fighter2.getKickTime() == 0){
-				if(event.getEventType().toString().equals("KEY_PRESSED") ) {
-					stance2str = "kick";
-					stance2 = fighter2.getKick();
-					fighter2.setKicking(true);
-					fighter2.setKickTime(1);
-				}
-				if(event.getEventType().toString().equals("KEY_RELEASED") ){
-					stance2str = "start";
-					stance2 = fighter2.getStart();
-					fighter2.setKicking(false);
+				if (((KeyEvent)event).getCode() == KeyCode.PERIOD && fighter2.getKickDelay() == 0 && fighter2.getKickTime() == 0){
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+						stance2str = "kick";
+						stance2 = fighter2.getKick();
+						fighter2.setKicking(true);
+						fighter2.setKickTime(1);
+					}
+					if(event.getEventType().toString().equals("KEY_RELEASED") ){
+						stance2str = "start";
+						stance2 = fighter2.getStart();
+						fighter2.setKicking(false);
+					}
 				}
 			}
 		}
