@@ -32,6 +32,8 @@ public class Fighter{
 	boolean demobilized;
 	int demobilizedTime, demobilizedDelay;
 
+	boolean atBounds;
+
 
 	public Fighter(boolean l){
 		health = 3000;
@@ -44,6 +46,9 @@ public class Fighter{
 		isPunching = false;
 		isKicking = false;
 		demobilized = false;
+		atBounds = false;
+		jumpTime = 0;
+		jumpSpeed = 10;
 
 		if(l) {
 			start = new Image("defaultStart.png");
@@ -54,9 +59,6 @@ public class Fighter{
 			punchL = new Image("defaultPunchL.png");
 			kickL = new Image("defaultKickL.png");
 			crouchL = new Image("defaultCrouchL.png");
-
-			jumpTime = 0;
-			jumpSpeed = 10;
 		}
 		else {
 			startL = new Image("defaultStart.png");
@@ -67,9 +69,6 @@ public class Fighter{
 			punch = new Image("defaultPunchL.png");
 			kick = new Image("defaultKickL.png");
 			crouch = new Image("defaultCrouchL.png");
-
-			jumpTime = 0;
-			jumpSpeed = 10;
 		}
 	}
 
@@ -212,5 +211,13 @@ public class Fighter{
 	}
 	public void setDemDelay(int t){
 		demobilizedDelay = t;
+	}
+
+	//bounds
+	public boolean getAtBounds(){
+		return atBounds;
+	}
+	public void setAtBounds(boolean b){
+		atBounds = b;
 	}
 }

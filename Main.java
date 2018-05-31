@@ -85,8 +85,10 @@ public class Main extends Application implements EventHandler<InputEvent>
 				Rectangle2D hitbx2 = new Rectangle2D(500+fighter2.getXpos(),100-fighter2.getYpos(),stance2.getWidth(),stance2.getHeight());
 				if (hitbx1.intersects(hitbx2) && fighter2.isPunching()) {
 					System.out.println("Fighter 2 punched Fighter 1");
-					fighter1.setDemTime(0); // add if statement to check delay, copy paste for fighter 2
-					fighter1.setDemobilized(false);
+					if(fighter1.getDemDelay() == 0){
+						fighter1.setDemTime(1);
+						fighter1.setDemobilized(true);
+					}
 					double crit = Math.random();
 					if(crit < fighter1.getCritChance()){
 						System.out.println("CRIT");
@@ -99,7 +101,11 @@ public class Main extends Application implements EventHandler<InputEvent>
 				if (hitbx2.intersects(hitbx1) && fighter1.isPunching()) {
 					double crit = Math.random();
 					System.out.println(crit);
-					System.out.println("Fighter 1 punched Fighter 2");;
+					System.out.println("Fighter 1 punched Fighter 2");
+					if(fighter2.getDemDelay() == 0){
+						fighter2.setDemTime(1);
+						fighter2.setDemobilized(true);
+					}
 					if(crit < fighter1.getCritChance()){
 						System.out.println("CRIT");
 						int damage = (int)(fighter2.getDamage() * (1.5+(Math.random()*(fighter2.getMaxCrit()-.1))) * (Math.random()+.5));
@@ -110,8 +116,10 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 				if (hitbx1.intersects(hitbx2) && fighter2.isKicking()) {
 					System.out.println("Fighter 2 kicked Fighter 1");
-					fighter1.setDemTime(0);
-					fighter1.setDemobilized(false);
+					if(fighter1.getDemDelay() == 0){
+						fighter1.setDemTime(1);
+						fighter1.setDemobilized(true);
+					}
 					double crit = Math.random();
 					if(crit < fighter1.getCritChance()){
 						int damage = (int)(fighter1.getDamage() * (1.5+(Math.random()*(fighter1.getMaxCrit()-.1))) * (Math.random()+.5));
@@ -122,6 +130,10 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 				if (hitbx2.intersects(hitbx1) && fighter1.isKicking()) {
 					System.out.println("Fighter 1 kicked Fighter 2");
+					if(fighter2.getDemDelay() == 0){
+						fighter2.setDemTime(1);
+						fighter2.setDemobilized(true);
+					}
 					double crit = Math.random();
 					if(crit < fighter2.getCritChance()){
 						int damage = (int)(fighter2.getDamage() * (1.5+(Math.random()*(fighter2.getMaxCrit()-.1))) * (Math.random()+.5));
@@ -132,16 +144,47 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 
 				//Demobilization
-				if(fighter1.getDemTime() > 0){
-					fighter1.setDemTime(fighter1.getDemTime() + 1);
-					if(fighter2.getXpos() > fighter1.getXpos())
-						fighter1.move(-1, 0);
-					else fighter1.move(+1, 0);
-					if(fighter1.getDemTime() == 5){
-						fighter1.setDemTime(0);
-						fighter1.setDemobilized(false);
-						fighter1.setDemDelay(1);
+				if(fighter1.getDemTime() > 0){																	//FIX THIS
+					System.out.println("Demobilized");															//FIX THIS
+					fighter1.setDemTime(fighter1.getDemTime() + 1);												//FIX THIS
+					if(((fighter2.getXpos() + 500) < (fighter1.getXpos() + 180)) && !fighter1.getAtBounds()) {//FIX THIS
+						ySpeed1 = 3 - .5*fighter1.getDemTime();													//FIX THIS
+						fighter1.move(-1, ySpeed1);																//FIX THIS
+					}																							//FIX THIS
+					else if(!fighter1.getAtBounds()){															//FIX THIS
+						ySpeed1 = 3 - .5*fighter1.getDemTime();													//FIX THIS
+						fighter1.move(+1, ySpeed1);//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS
+					}//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS
+					if(ySpeed1 == -3 && fighter1.getDemTime() != 0){//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS
+						ySpeed1 = 0;//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS
+						fighter1.setDemTime(0);//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS
+						fighter1.setDemobilized(false);//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS
+						fighter1.setDemDelay(1);//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS//FIX THIS
 					}
+
+				}
+				if(fighter2.getDemTime() > 0){
+					System.out.println("Demobilized");
+					fighter2.setDemTime(fighter2.getDemTime() + 1);
+					if(((fighter1.getXpos() + 180) < (fighter2.getXpos() + 500)) && !fighter2.getAtBounds())
+						fighter2.move(-1, 3 - .5*fighter2.getDemTime());
+					else if(!fighter2.getAtBounds())
+						fighter2.move(+1, 3 - .5*fighter2.getDemTime());
+					if(fighter2.getYpos() <= 0 && fighter2.getDemTime() != 0){
+						fighter2.setDemTime(0);
+						fighter2.setDemobilized(false);
+						fighter2.setDemDelay(1);
+					}
+				}
+				if(fighter1.getDemDelay() > 0){
+					if(fighter1.getDemDelay() == 10)
+						fighter1.setDemDelay(0);
+					else fighter1.setDemDelay(fighter1.getDemDelay() + 1);
+				}
+				if(fighter2.getDemDelay() > 0){
+					if(fighter2.getDemDelay() == 10)
+						fighter2.setDemDelay(0);
+					else fighter2.setDemDelay(fighter2.getDemDelay() + 1);
 				}
 
 				//Punching and kicking delay
@@ -211,10 +254,16 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 
 				//Boundries
-				if(fighter1.getXpos() > (620 - stance1.getWidth()) || fighter1.getXpos() < -170)
+				if(fighter1.getXpos() > (620 - stance1.getWidth()) || fighter1.getXpos() < -170){
 					xSpeed1 = 0;
-				if(fighter2.getXpos() > (300 - stance2.getWidth()) || fighter2.getXpos() < -490)
+					fighter1.setAtBounds(true);
+				}
+				else fighter1.setAtBounds(false);
+				if(fighter2.getXpos() > (300 - stance2.getWidth()) || fighter2.getXpos() < -490){
 					xSpeed2 = 0;
+					fighter2.setAtBounds(true);
+				}
+				else fighter2.setAtBounds(false);
 
 			}
 			else if(fighter1.getHealth() <= 0 && fighter2.getHealth() <= 0){
