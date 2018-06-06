@@ -16,7 +16,41 @@ import javafx.event.*;
 import javafx.scene.input.*;
 import javafx.scene.text.*;
 public class ability{
-	public ability(){
-
+	private int damage;
+	private int xPos, yPos;
+	private int speed;
+	private Image image;
+	private boolean left;
+	private int time;
+	public ability(Image i){
+		image = i;
+	}
+	public int getDamage(){
+		return damage;
+	}
+	public void move(int x, int y){
+		xPos = x;
+		yPos = y;
+	}
+	public int getXpos(){
+		return xPos;
+	}
+	public int getYpos(){
+		return yPos;
+	}
+	public Image getImage(){
+		return image;
+	}
+	public int getSpeed(){
+		return speed;
+	}
+	public boolean getLeft(){
+		return left;
+	}
+	public int getTime(){
+		return time;
+	}
+	public void setTime(int t){
+		time = t;
 	}
 }

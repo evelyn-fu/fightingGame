@@ -21,6 +21,7 @@ import java.awt.Rectangle;
 
 public class Main extends Application implements EventHandler<InputEvent>
 {
+	ability[] fireballs = new ability[2];
 	GraphicsContext gc;
 	AnimateObjects animate;
 	Canvas canvas;
@@ -84,63 +85,71 @@ public class Main extends Application implements EventHandler<InputEvent>
 				Rectangle2D hitbx1 = new Rectangle2D(180+fighter1.getXpos(),100-fighter1.getYpos(),stance1.getWidth(),stance1.getHeight());
 				Rectangle2D hitbx2 = new Rectangle2D(500+fighter2.getXpos(),100-fighter2.getYpos(),stance2.getWidth(),stance2.getHeight());
 				if (hitbx1.intersects(hitbx2) && fighter2.isPunching()) {
-					System.out.println("Fighter 2 punched Fighter 1");
-					if(fighter1.getDemDelay() == 0 && !fighter1.getDemobilized() && !fighter1.getIsJumping()){
-						fighter1.setDemTime(1);
-						fighter1.setDemobilized(true);
+					if(((180+fighter1.getXpos() < 500+fighter2.getXpos()) && !fighter2.getLeft())||((180+fighter1.getXpos() > 500+fighter2.getXpos()) && fighter2.getLeft())) {
+						System.out.println("Fighter 2 punched Fighter 1");
+						if(fighter1.getDemDelay() == 0 && !fighter1.getDemobilized() && !fighter1.getIsJumping()){
+							fighter1.setDemTime(1);
+							fighter1.setDemobilized(true);
+						}
+						double crit = Math.random();
+						if(crit < fighter1.getCritChance()){
+							System.out.println("CRIT");
+							int damage = (int)(fighter1.getDamage() * (1.5+(Math.random()*(fighter1.getMaxCrit()-.1))) * (Math.random()+.5));
+							fighter2.setHealth(fighter2.getHealth() - damage);
+						}
+						else
+							fighter2.setHealth(fighter2.getHealth() - fighter1.getDamage());
 					}
-					double crit = Math.random();
-					if(crit < fighter1.getCritChance()){
-						System.out.println("CRIT");
-						int damage = (int)(fighter1.getDamage() * (1.5+(Math.random()*(fighter1.getMaxCrit()-.1))) * (Math.random()+.5));
-						fighter2.setHealth(fighter2.getHealth() - damage);
-					}
-					else
-						fighter2.setHealth(fighter2.getHealth() - fighter1.getDamage());
 				}
 				if (hitbx2.intersects(hitbx1) && fighter1.isPunching()) {
-					double crit = Math.random();
-					System.out.println(crit);
-					System.out.println("Fighter 1 punched Fighter 2");
-					if(fighter2.getDemDelay() == 0 && !fighter2.getDemobilized() && !fighter2.getIsJumping()){
-						fighter2.setDemTime(1);
-						fighter2.setDemobilized(true);
+					if(((180+fighter1.getXpos() < 500+fighter2.getXpos()) && !fighter1.getLeft())||((180+fighter1.getXpos() > 500+fighter2.getXpos()) && fighter1.getLeft())){
+						double crit = Math.random();
+						System.out.println(crit);
+						System.out.println("Fighter 1 punched Fighter 2");
+						if(fighter2.getDemDelay() == 0 && !fighter2.getDemobilized() && !fighter2.getIsJumping()){
+							fighter2.setDemTime(1);
+							fighter2.setDemobilized(true);
+						}
+						if(crit < fighter1.getCritChance()){
+							System.out.println("CRIT");
+							int damage = (int)(fighter2.getDamage() * (1.5+(Math.random()*(fighter2.getMaxCrit()-.1))) * (Math.random()+.5));
+							fighter1.setHealth(fighter1.getHealth() - damage);
+						}
+						else
+							fighter1.setHealth(fighter1.getHealth() - fighter2.getDamage());
 					}
-					if(crit < fighter1.getCritChance()){
-						System.out.println("CRIT");
-						int damage = (int)(fighter2.getDamage() * (1.5+(Math.random()*(fighter2.getMaxCrit()-.1))) * (Math.random()+.5));
-						fighter1.setHealth(fighter1.getHealth() - damage);
-					}
-					else
-						fighter1.setHealth(fighter1.getHealth() - fighter2.getDamage());
 				}
 				if (hitbx1.intersects(hitbx2) && fighter2.isKicking()) {
-					System.out.println("Fighter 2 kicked Fighter 1");
-					if(fighter1.getDemDelay() == 0 && !fighter1.getDemobilized() && !fighter1.getIsJumping()){
-						fighter1.setDemTime(1);
-						fighter1.setDemobilized(true);
+					if(((180+fighter1.getXpos() < 500+fighter2.getXpos()) && !fighter2.getLeft())||((180+fighter1.getXpos() > 500+fighter2.getXpos()) && fighter2.getLeft())) {
+						System.out.println("Fighter 2 kicked Fighter 1");
+						if(fighter1.getDemDelay() == 0 && !fighter1.getDemobilized() && !fighter1.getIsJumping()){
+							fighter1.setDemTime(1);
+							fighter1.setDemobilized(true);
+						}
+						double crit = Math.random();
+						if(crit < fighter1.getCritChance()){
+							int damage = (int)(fighter1.getDamage() * (1.5+(Math.random()*(fighter1.getMaxCrit()-.1))) * (Math.random()+.5));
+							fighter2.setHealth(fighter2.getHealth() - damage);
+						}
+						else
+							fighter2.setHealth(fighter2.getHealth() - fighter1.getDamage());
 					}
-					double crit = Math.random();
-					if(crit < fighter1.getCritChance()){
-						int damage = (int)(fighter1.getDamage() * (1.5+(Math.random()*(fighter1.getMaxCrit()-.1))) * (Math.random()+.5));
-						fighter2.setHealth(fighter2.getHealth() - damage);
-					}
-					else
-						fighter2.setHealth(fighter2.getHealth() - fighter1.getDamage());
 				}
 				if (hitbx2.intersects(hitbx1) && fighter1.isKicking()) {
-					System.out.println("Fighter 1 kicked Fighter 2");
-					if(fighter2.getDemDelay() == 0 && !fighter2.getDemobilized() && !fighter2.getIsJumping()){
-						fighter2.setDemTime(1);
-						fighter2.setDemobilized(true);
+					if(((180+fighter1.getXpos() < 500+fighter2.getXpos()) && !fighter1.getLeft())||((180+fighter1.getXpos() > 500+fighter2.getXpos()) && fighter1.getLeft())) {
+						System.out.println("Fighter 1 kicked Fighter 2");
+						if(fighter2.getDemDelay() == 0 && !fighter2.getDemobilized() && !fighter2.getIsJumping()){
+							fighter2.setDemTime(1);
+							fighter2.setDemobilized(true);
+						}
+						double crit = Math.random();
+						if(crit < fighter2.getCritChance()){
+							int damage = (int)(fighter2.getDamage() * (1.5+(Math.random()*(fighter2.getMaxCrit()-.1))) * (Math.random()+.5));
+							fighter1.setHealth(fighter1.getHealth() - damage);
+						}
+						else
+							fighter1.setHealth(fighter1.getHealth() - fighter2.getDamage());
 					}
-					double crit = Math.random();
-					if(crit < fighter2.getCritChance()){
-						int damage = (int)(fighter2.getDamage() * (1.5+(Math.random()*(fighter2.getMaxCrit()-.1))) * (Math.random()+.5));
-						fighter1.setHealth(fighter1.getHealth() - damage);
-					}
-					else
-						fighter1.setHealth(fighter1.getHealth() - fighter2.getDamage());
 				}
 
 				//Demobilization
@@ -269,6 +278,14 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 				else fighter2.setAtBounds(false);
 
+
+				//fireballs
+				if(fireballs[0] != null){//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+					if(fireballs[0].getLeft())//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						fireballs[0].move(-fireballs[0].getSpeed(), Math.abs((int)Math.sin((double)fireballs[0].getTime() * (double)fireballs[0].getSpeed())));//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+					else//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						fireballs[0].move(fireballs[0].getSpeed(), Math.abs((int)Math.sin((double)fireballs[0].getTime() * (double)fireballs[0].getSpeed())));//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+				}//WIPWIPWIPWIPWIPWIPWIPWIPWIP
 			}
 			else if(fighter1.getHealth() <= 0 && fighter2.getHealth() <= 0){
 				if(fighter1.getHealth() > fighter2.getHealth()){
@@ -409,6 +426,20 @@ public class Main extends Application implements EventHandler<InputEvent>
 						fighter1.setKicking(false);
 					}
 				}
+
+				if (((KeyEvent)event).getCode() == KeyCode.T){//fireball
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						stance1str = "punch";										//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						stance1 = fighter1.getPunch();								//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						fireballs[0] = new ability(new Image("blueFireball.png"));	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						fireballs[0].move(fighter1.getXpos(), fighter1.getYpos());	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						fireballs[0].setTime(1);									//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+					}																//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+					if(event.getEventType().toString().equals("KEY_RELEASED") ){
+						stance1str = "start";
+						stance1 = fighter1.getStart();
+					}
+				}
 			}
 			//Fighter 2 movements
 			if(!fighter2.getDemobilized()){
@@ -525,6 +556,8 @@ public class Main extends Application implements EventHandler<InputEvent>
 		gc.drawImage(stance2, 500 , 180);
 		f1Label = new Text(180+fighter1.getXpos(), 100-fighter1.getYpos(), "Fighter 1");
 		f2Label = new Text(500+fighter2.getXpos(), 100-fighter2.getYpos(), "Fighter 2");
+		f1Label.setFill(Color.BLUE);
+		f2Label.setFill(Color.RED);
 		root.getChildren().add(f1Label);
 		root.getChildren().add(f2Label);
 
