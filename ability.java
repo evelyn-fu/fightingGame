@@ -22,8 +22,12 @@ public class ability{
 	private Image image;
 	private boolean left;
 	private int time;
-	public ability(Image i){
+	private boolean remove;
+	public ability(Image i, int x, int y, boolean l){
 		image = i;
+		xPos = x;
+		yPos = y;
+		left = l;
 	}
 	public int getDamage(){
 		return damage;
@@ -52,5 +56,14 @@ public class ability{
 	}
 	public void setTime(int t){
 		time = t;
+	}
+	public void setLeft(boolean b){
+		left = b;
+	}
+	public void setRemove(boolean b){
+		remove = b;
+	}
+	public boolean getRemove(){
+		return remove;
 	}
 }

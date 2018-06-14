@@ -34,6 +34,7 @@ public class Fighter{
 
 	boolean atBounds;
 
+	boolean hasFireball;//NEW
 
 	public Fighter(boolean l){
 		health = 3000;
@@ -219,5 +220,12 @@ public class Fighter{
 	}
 	public void setAtBounds(boolean b){
 		atBounds = b;
+	}
+
+	public boolean getFireball(){ //NEW
+		return hasFireball;
+	}
+	public void setFireball(boolean b){
+		hasFireball = b;
 	}
 }

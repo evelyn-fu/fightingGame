@@ -21,7 +21,6 @@ import java.awt.Rectangle;
 
 public class Main extends Application implements EventHandler<InputEvent>
 {
-	ability[] fireballs = new ability[2];
 	GraphicsContext gc;
 	AnimateObjects animate;
 	Canvas canvas;
@@ -34,6 +33,11 @@ public class Main extends Application implements EventHandler<InputEvent>
 	int atkTime = 15;
 	Group root;
 	Text f1Label, f2Label;
+	int timer = 0; //NEW
+	boolean powerUp;
+	Image star;
+	ArrayList <ability> fireball1 = new ArrayList<ability>();
+	ArrayList <ability> fireball2 = new ArrayList<ability>();
 
 	double xSpeed1, xSpeed2, ySpeed1, ySpeed2;
 	public static void main(String[] args)
@@ -48,6 +52,12 @@ public class Main extends Application implements EventHandler<InputEvent>
 				fighter2.move(xSpeed2, ySpeed2);
 				gc.drawImage(stance1, 180+fighter1.getXpos(), 100-fighter1.getYpos());
 				gc.drawImage(stance2, 500+fighter2.getXpos(), 100-fighter2.getYpos());
+				if(fighter1.getFireball()){
+					gc.drawImage(new Image("powerup.png"), 200+fighter1.getXpos(), 180-fighter1.getYpos());
+				}
+				if(fighter2.getFireball()){
+					gc.drawImage(new Image("powerup.png"), 520+fighter2.getXpos(), 180-fighter2.getYpos());
+				}
 
 				f1Label.setX(180+fighter1.getXpos()); //fighter labels
 				f1Label.setY(100-fighter1.getYpos());
@@ -278,14 +288,62 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 				else fighter2.setAtBounds(false);
 
+				//NEW FIREBALLS
+				if(timer%600 == 0){
+					if(!powerUp){
+						star = new Image("powerup.png");
+						powerUp = true;
+					}
+				}
+				timer++;
 
-				//fireballs
-				if(fireballs[0] != null){//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-					if(fireballs[0].getLeft())//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-						fireballs[0].move(-fireballs[0].getSpeed(), Math.abs((int)Math.sin((double)fireballs[0].getTime() * (double)fireballs[0].getSpeed())));//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-					else//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-						fireballs[0].move(fireballs[0].getSpeed(), Math.abs((int)Math.sin((double)fireballs[0].getTime() * (double)fireballs[0].getSpeed())));//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-				}//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+				if(star != null){
+					gc.drawImage(star, 375, 30);
+					Rectangle2D hitbxStar = new Rectangle2D(375,30,star.getWidth(),star.getHeight());
+					if(hitbx1.intersects(hitbxStar) && powerUp){
+						powerUp = false;
+						fighter1.setFireball(true);
+						star = null;
+					}
+					if(hitbx2.intersects(hitbxStar) && powerUp){
+						powerUp = false;
+						fighter2.setFireball(true);
+						star = null;
+					}
+				}
+
+				for(ability a: fireball1){
+					if(a.getLeft())
+						a.move(a.getXpos() - 10, a.getYpos());
+					else
+						a.move(a.getXpos() + 10, a.getYpos());
+					gc.drawImage(a.getImage(), a.getXpos(), a.getYpos());
+					Rectangle2D hitbxBall = new Rectangle2D(a.getXpos(), a.getYpos(), 50, 50);
+					if(hitbxBall.intersects(hitbx2) && !stance2str.equals("crouch")){
+						fighter1.setHealth(fighter1.getHealth() - 200);
+						a.setRemove(true);
+					}
+				}
+				for(int i=0; i<fireball1.size(); i++){
+					if(fireball1.get(i).getRemove())
+						fireball1.remove(fireball1.get(i));
+				}
+				for(ability a: fireball2){
+					if(a.getLeft())
+						a.move(a.getXpos() - 10, a.getYpos());
+					else
+						a.move(a.getXpos() + 10, a.getYpos());
+					gc.drawImage(a.getImage(), a.getXpos(), a.getYpos());
+					Rectangle2D hitbxBall = new Rectangle2D(a.getXpos(), a.getYpos(), 50, 50);
+					if(hitbxBall.intersects(hitbx1) && !stance1str.equals("crouch")){
+						fighter2.setHealth(fighter2.getHealth() - 200);
+						a.setRemove(true);
+					}
+				}
+				for(int i=0; i<fireball2.size(); i++){
+					if(fireball2.get(i).getRemove())
+						fireball2.remove(fireball2.get(i));
+				}
 			}
 			else if(fighter1.getHealth() <= 0 && fighter2.getHealth() <= 0){
 				if(fighter1.getHealth() > fighter2.getHealth()){
@@ -427,14 +485,13 @@ public class Main extends Application implements EventHandler<InputEvent>
 					}
 				}
 
-				if (((KeyEvent)event).getCode() == KeyCode.T){//fireball
+				if (((KeyEvent)event).getCode() == KeyCode.T && fighter1.getFireball()){//fireball
 					if(event.getEventType().toString().equals("KEY_PRESSED") ) {	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
 						stance1str = "punch";										//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-						stance1 = fighter1.getPunch();								//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-						fireballs[0] = new ability(new Image("blueFireball.png"));	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-						fireballs[0].move(fighter1.getXpos(), fighter1.getYpos());	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-						fireballs[0].setTime(1);									//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-					}																//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						stance1 = fighter1.getPunch();
+						fireball1.add(new ability(new Image("blueFireball.png"), fighter1.getXpos()+180, 100-fighter1.getYpos(), fighter1.getLeft()));
+						fighter1.setFireball(false);
+					}
 					if(event.getEventType().toString().equals("KEY_RELEASED") ){
 						stance1str = "start";
 						stance1 = fighter1.getStart();
@@ -527,6 +584,18 @@ public class Main extends Application implements EventHandler<InputEvent>
 						stance2str = "start";
 						stance2 = fighter2.getStart();
 						fighter2.setKicking(false);
+					}
+				}
+				if (((KeyEvent)event).getCode() == KeyCode.COMMA && fighter2.getFireball()){//fireball
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						stance2str = "punch";										//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+						stance2 = fighter1.getPunch();
+						fireball2.add(new ability(new Image("redFireball.png"), fighter2.getXpos()+500, 100-fighter2.getYpos(), !fighter2.getLeft()));
+						fighter2.setFireball(false);
+					}
+					if(event.getEventType().toString().equals("KEY_RELEASED") ){
+						stance2str = "start";
+						stance2 = fighter2.getStart();
 					}
 				}
 			}
