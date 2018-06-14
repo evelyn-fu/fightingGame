@@ -21,11 +21,12 @@ import java.awt.Rectangle;
 
 public class Main extends Application implements EventHandler<InputEvent>
 {
+	ability[] fireballs = new ability[2];
 	GraphicsContext gc;
 	AnimateObjects animate;
 	Canvas canvas;
 	Fighter fighter1, fighter2;
-	Image stance1, stance2;
+	Image stance1, stance2, background;
 	String stance1str, stance2str;
 	boolean left1 = false, left2 = false;
 	double mouseX, mouseY;
@@ -33,11 +34,14 @@ public class Main extends Application implements EventHandler<InputEvent>
 	int atkTime = 15;
 	Group root;
 	Text f1Label, f2Label;
+	AudioClip clip1, clip2, clipDead;
+	boolean gameover = false;
 	int timer = 0; //NEW
 	boolean powerUp;
 	Image star;
 	ArrayList <ability> fireball1 = new ArrayList<ability>();
 	ArrayList <ability> fireball2 = new ArrayList<ability>();
+
 
 	double xSpeed1, xSpeed2, ySpeed1, ySpeed2;
 	public static void main(String[] args)
@@ -46,12 +50,13 @@ public class Main extends Application implements EventHandler<InputEvent>
 	}
 	public class AnimateObjects extends AnimationTimer{
 		public void handle(long now) {
-			if(fighter1.getHealth() > 0 && fighter2.getHealth() > 0){
+			if(fighter1.getHealth() >= 0 && fighter2.getHealth() >= 0){
 				clear();
+				gc.drawImage(background,0 ,0);
 				fighter1.move(xSpeed1, ySpeed1);
 				fighter2.move(xSpeed2, ySpeed2);
-				gc.drawImage(stance1, 180+fighter1.getXpos(), 100-fighter1.getYpos());
-				gc.drawImage(stance2, 500+fighter2.getXpos(), 100-fighter2.getYpos());
+				gc.drawImage(stance1, 180+fighter1.getXpos(), 180-fighter1.getYpos());
+				gc.drawImage(stance2, 500+fighter2.getXpos(), 180-fighter2.getYpos());
 				if(fighter1.getFireball()){
 					gc.drawImage(new Image("powerup.png"), 200+fighter1.getXpos(), 180-fighter1.getYpos());
 				}
@@ -60,17 +65,17 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 
 				f1Label.setX(180+fighter1.getXpos()); //fighter labels
-				f1Label.setY(100-fighter1.getYpos());
+				f1Label.setY(180-fighter1.getYpos());
 				f2Label.setX(500+fighter2.getXpos());
-				f2Label.setY(100-fighter2.getYpos());
+				f2Label.setY(180-fighter2.getYpos());
 
 				gc.setFill(Color.RED); //health bar
-				gc.fillRect(25,300,300,10);
-				gc.fillRect(425,300,300,10);
+				gc.fillRect(25,50,300,10);
+				gc.fillRect(425,50,300,10);
 
 				gc.setFill(Color.GREEN);
-				gc.fillRect(25,300, (int)(300 * (double)fighter2.getHealth()/(double)fighter2.getMaxHealth()),10);
-				gc.fillRect(425,300, (int)(300 * (double)fighter1.getHealth()/(double)fighter1.getMaxHealth()) ,10);
+				gc.fillRect(25,50, (int)(300 * (double)fighter2.getHealth()/(double)fighter2.getMaxHealth()),10);
+				gc.fillRect(425,50, (int)(300 * (double)fighter1.getHealth()/(double)fighter1.getMaxHealth()) ,10);
 
 				if(fighter1.getIsJumping()){ //fighter1 jump
 					ySpeed1 = fighter1.getJumpSpeed() - .5*fighter1.getJumpTime();
@@ -96,14 +101,15 @@ public class Main extends Application implements EventHandler<InputEvent>
 				Rectangle2D hitbx2 = new Rectangle2D(500+fighter2.getXpos(),100-fighter2.getYpos(),stance2.getWidth(),stance2.getHeight());
 				if (hitbx1.intersects(hitbx2) && fighter2.isPunching()) {
 					if(((180+fighter1.getXpos() < 500+fighter2.getXpos()) && !fighter2.getLeft())||((180+fighter1.getXpos() > 500+fighter2.getXpos()) && fighter2.getLeft())) {
-						System.out.println("Fighter 2 punched Fighter 1");
+						//System.out.println("Fighter 2 punched Fighter 1");
+						clip1.play();
 						if(fighter1.getDemDelay() == 0 && !fighter1.getDemobilized() && !fighter1.getIsJumping()){
 							fighter1.setDemTime(1);
 							fighter1.setDemobilized(true);
 						}
 						double crit = Math.random();
 						if(crit < fighter1.getCritChance()){
-							System.out.println("CRIT");
+							//System.out.println("CRIT");
 							int damage = (int)(fighter1.getDamage() * (1.5+(Math.random()*(fighter1.getMaxCrit()-.1))) * (Math.random()+.5));
 							fighter2.setHealth(fighter2.getHealth() - damage);
 						}
@@ -114,14 +120,15 @@ public class Main extends Application implements EventHandler<InputEvent>
 				if (hitbx2.intersects(hitbx1) && fighter1.isPunching()) {
 					if(((180+fighter1.getXpos() < 500+fighter2.getXpos()) && !fighter1.getLeft())||((180+fighter1.getXpos() > 500+fighter2.getXpos()) && fighter1.getLeft())){
 						double crit = Math.random();
-						System.out.println(crit);
-						System.out.println("Fighter 1 punched Fighter 2");
+						//System.out.println(crit);
+						//System.out.println("Fighter 1 punched Fighter 2");
+						clip1.play();
 						if(fighter2.getDemDelay() == 0 && !fighter2.getDemobilized() && !fighter2.getIsJumping()){
 							fighter2.setDemTime(1);
 							fighter2.setDemobilized(true);
 						}
 						if(crit < fighter1.getCritChance()){
-							System.out.println("CRIT");
+							//System.out.println("CRIT");
 							int damage = (int)(fighter2.getDamage() * (1.5+(Math.random()*(fighter2.getMaxCrit()-.1))) * (Math.random()+.5));
 							fighter1.setHealth(fighter1.getHealth() - damage);
 						}
@@ -131,7 +138,8 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 				if (hitbx1.intersects(hitbx2) && fighter2.isKicking()) {
 					if(((180+fighter1.getXpos() < 500+fighter2.getXpos()) && !fighter2.getLeft())||((180+fighter1.getXpos() > 500+fighter2.getXpos()) && fighter2.getLeft())) {
-						System.out.println("Fighter 2 kicked Fighter 1");
+						//System.out.println("Fighter 2 kicked Fighter 1");
+						clip2.play();
 						if(fighter1.getDemDelay() == 0 && !fighter1.getDemobilized() && !fighter1.getIsJumping()){
 							fighter1.setDemTime(1);
 							fighter1.setDemobilized(true);
@@ -147,7 +155,8 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 				if (hitbx2.intersects(hitbx1) && fighter1.isKicking()) {
 					if(((180+fighter1.getXpos() < 500+fighter2.getXpos()) && !fighter1.getLeft())||((180+fighter1.getXpos() > 500+fighter2.getXpos()) && fighter1.getLeft())) {
-						System.out.println("Fighter 1 kicked Fighter 2");
+						//System.out.println("Fighter 1 kicked Fighter 2");
+						clip2.play();
 						if(fighter2.getDemDelay() == 0 && !fighter2.getDemobilized() && !fighter2.getIsJumping()){
 							fighter2.setDemTime(1);
 							fighter2.setDemobilized(true);
@@ -164,7 +173,7 @@ public class Main extends Application implements EventHandler<InputEvent>
 
 				//Demobilization
 				if(fighter1.getDemTime() > 0){
-					System.out.println("Demobilized");
+					//System.out.println("Demobilized");
 					fighter1.setDemTime(fighter1.getDemTime() + 1);
 					ySpeed1 = fighter1.getJumpSpeed()/2 - .5*fighter1.getDemTime();
 					if(((fighter1.getXpos() + 180) > (fighter2.getXpos() + 500)) && !fighter2.getAtBounds()){
@@ -182,7 +191,7 @@ public class Main extends Application implements EventHandler<InputEvent>
 					}
 				}
 				if(fighter2.getDemTime() > 0){
-					System.out.println("Demobilized");
+					//System.out.println("Demobilized");
 					fighter2.setDemTime(fighter2.getDemTime() + 1);
 					ySpeed2 = fighter2.getJumpSpeed()/2 - .5*fighter2.getDemTime();
 					if(((fighter2.getXpos() + 500) < (fighter1.getXpos() + 180)) && !fighter2.getAtBounds()){
@@ -288,6 +297,7 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 				else fighter2.setAtBounds(false);
 
+
 				//NEW FIREBALLS
 				if(timer%600 == 0){
 					if(!powerUp){
@@ -345,8 +355,12 @@ public class Main extends Application implements EventHandler<InputEvent>
 						fireball2.remove(fireball2.get(i));
 				}
 			}
+			//Death
 			else if(fighter1.getHealth() <= 0 && fighter2.getHealth() <= 0){
 				if(fighter1.getHealth() > fighter2.getHealth()){
+					stance2 = fighter2.getDead();
+					fighter2.setYpos(-100);
+					deathScreen();
 					gc.setFill(Color.YELLOW); //Fills the text in yellow
 					gc.setStroke(Color.BLACK); //Changes the outline the black
 					gc.setLineWidth(1); //How big the black lines will be
@@ -356,6 +370,9 @@ public class Main extends Application implements EventHandler<InputEvent>
 					gc.strokeText("Fighter 1 Wins!", 100, 50 ); //draws the outline part of the text
 				}
 				else if(fighter1.getHealth() < fighter2.getHealth()){
+					stance1 = fighter1.getDead();
+					fighter1.setYpos(-100);
+					deathScreen();
 					gc.setFill(Color.YELLOW); //Fills the text in yellow
 					gc.setStroke(Color.BLACK); //Changes the outline the black
 					gc.setLineWidth(1); //How big the black lines will be
@@ -365,6 +382,11 @@ public class Main extends Application implements EventHandler<InputEvent>
 					gc.strokeText("Fighter 2 Wins!", 100, 50 ); //draws the outline part of the text
 				}
 				else{
+					stance1 = fighter1.getDead();
+					stance2 = fighter2.getDead();
+					fighter1.setYpos(-100);
+					fighter2.setYpos(-100);
+					deathScreen();
 					gc.setFill(Color.YELLOW); //Fills the text in yellow
 					gc.setStroke(Color.BLACK); //Changes the outline the black
 					gc.setLineWidth(1); //How big the black lines will be
@@ -373,8 +395,13 @@ public class Main extends Application implements EventHandler<InputEvent>
 					gc.fillText("Tie!", 100, 50 ); //draws the yellow part of the text
 					gc.strokeText("Tie!", 100, 50 ); //draws the outline part of the text
 				}
+				gameover = true;
+				System.out.println("PRESS ENTER TO RESTART");
 			}
 			else if(fighter1.getHealth() <= 0) {
+					stance2 = fighter2.getDead();
+					deathScreen();
+					fighter2.setYpos(-100);
 					gc.setFill(Color.YELLOW); //Fills the text in yellow
 					gc.setStroke(Color.BLACK); //Changes the outline the black
 					gc.setLineWidth(1); //How big the black lines will be
@@ -382,8 +409,13 @@ public class Main extends Application implements EventHandler<InputEvent>
 					gc.setFont(font);
 					gc.fillText("Fighter 1 Wins!", 100, 50 ); //draws the yellow part of the text
 					gc.strokeText("Fighter 1 Wins!", 100, 50 ); //draws the outline part of the text
+					gameover = true;
+					System.out.println("PRESS ENTER TO RESTART");
 			}
 			else if(fighter2.getHealth() <= 0) {
+					stance1 = fighter1.getDead();
+					fighter1.setYpos(-100);
+					deathScreen();
 					gc.setFill(Color.YELLOW); //Fills the text in yellow
 					gc.setStroke(Color.BLACK); //Changes the outline the black
 					gc.setLineWidth(1); //How big the black lines will be
@@ -391,11 +423,50 @@ public class Main extends Application implements EventHandler<InputEvent>
 					gc.setFont(font);
 					gc.fillText("Fighter 2 Wins!", 100, 50 ); //draws the yellow part of the text
 					gc.strokeText("Fighter 2 Wins!", 100, 50 ); //draws the outline part of the text
+					deathScreen();
+					gameover = true;
+					System.out.println("PRESS ENTER TO RESTART");
 			}
 		}
 	}
 	public void handle(final InputEvent event){
 		if(event instanceof KeyEvent){
+			if(((KeyEvent)event).getCode() == KeyCode.ENTER && gameover){
+				gc.drawImage(background,0 ,0);
+				fighter1.setHealth(fighter1.getMaxHealth());
+				fighter2.setHealth(3000);
+				fighter1.setYpos(0);
+				fighter2.setYpos(0);
+				fighter1.setXpos(80);
+				fighter2.setXpos(0);
+				xSpeed1 = 0;
+				ySpeed1 = 0;
+				xSpeed2 = 0;
+				ySpeed2 = 0;
+				fighter1.setIsJumping(false);
+				fighter1.setJumpTime(0);
+				fighter1.setPunching(false);
+				fighter1.setKicking(false);
+				fighter1.setPunchTime(0);
+				fighter1.setKickTime(0);
+				fighter1.setPunchDelay(0);
+				fighter1.setKickDelay(0);
+				fighter1.setDemobilized(false);
+				fighter1.setDemTime(0);
+				fighter1.setDemDelay(0);
+				fighter2.setIsJumping(false);
+				fighter2.setJumpTime(0);
+				fighter2.setPunching(false);
+				fighter2.setKicking(false);
+				fighter2.setPunchTime(0);
+				fighter2.setKickTime(0);
+				fighter2.setPunchDelay(0);
+				fighter2.setKickDelay(0);
+				fighter2.setDemobilized(false);
+				fighter2.setDemTime(0);
+				fighter2.setDemDelay(0);
+				gameover = false;
+			}
 			//Fighter 1 movements
 			if(!fighter1.getDemobilized()){
 				if(fighter1.getXpos() > -170){
@@ -486,10 +557,10 @@ public class Main extends Application implements EventHandler<InputEvent>
 				}
 
 				if (((KeyEvent)event).getCode() == KeyCode.T && fighter1.getFireball()){//fireball
-					if(event.getEventType().toString().equals("KEY_PRESSED") ) {	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-						stance1str = "punch";										//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+						stance1str = "punch";
 						stance1 = fighter1.getPunch();
-						fireball1.add(new ability(new Image("blueFireball.png"), fighter1.getXpos()+180, 100-fighter1.getYpos(), fighter1.getLeft()));
+						fireball1.add(new ability(new Image("blueFireball.png"), fighter1.getXpos()+180, 180-fighter1.getYpos(), fighter1.getLeft()));
 						fighter1.setFireball(false);
 					}
 					if(event.getEventType().toString().equals("KEY_RELEASED") ){
@@ -587,10 +658,10 @@ public class Main extends Application implements EventHandler<InputEvent>
 					}
 				}
 				if (((KeyEvent)event).getCode() == KeyCode.COMMA && fighter2.getFireball()){//fireball
-					if(event.getEventType().toString().equals("KEY_PRESSED") ) {	//WIPWIPWIPWIPWIPWIPWIPWIPWIP
-						stance2str = "punch";										//WIPWIPWIPWIPWIPWIPWIPWIPWIP
+					if(event.getEventType().toString().equals("KEY_PRESSED") ) {
+						stance2str = "punch";
 						stance2 = fighter1.getPunch();
-						fireball2.add(new ability(new Image("redFireball.png"), fighter2.getXpos()+500, 100-fighter2.getYpos(), !fighter2.getLeft()));
+						fireball2.add(new ability(new Image("redFireball.png"), fighter2.getXpos()+500, 180-fighter2.getYpos(), !fighter2.getLeft()));
 						fighter2.setFireball(false);
 					}
 					if(event.getEventType().toString().equals("KEY_RELEASED") ){
@@ -615,6 +686,8 @@ public class Main extends Application implements EventHandler<InputEvent>
 		stage.setScene(scene);
 		gc = canvas.getGraphicsContext2D();
 
+		background = new Image("background3.jpg");
+		gc.drawImage(background, 0 ,0);
 		fighter1 = new Fighter(true);
 		stance1 = fighter1.getStart();
 		stance1str = "start";
@@ -623,21 +696,48 @@ public class Main extends Application implements EventHandler<InputEvent>
 		stance2 = fighter2.getStart();
 		stance2str = "start";
 		gc.drawImage(stance2, 500 , 180);
-		f1Label = new Text(180+fighter1.getXpos(), 100-fighter1.getYpos(), "Fighter 1");
-		f2Label = new Text(500+fighter2.getXpos(), 100-fighter2.getYpos(), "Fighter 2");
-		f1Label.setFill(Color.BLUE);
-		f2Label.setFill(Color.RED);
+		f1Label = new Text(180+fighter1.getXpos(), 180-fighter1.getYpos(), "Fighter 1");
+		f2Label = new Text(500+fighter2.getXpos(), 180-fighter2.getYpos(), "Fighter 2");
+		f1Label.setFill(Color.CYAN);
+		f2Label.setFill(Color.MAGENTA);
 		root.getChildren().add(f1Label);
 		root.getChildren().add(f2Label);
+
+		URL resource1 = getClass().getResource("punch.wav");
+		clip1 = new AudioClip(resource1.toString());
+		URL resource2 = getClass().getResource("punch2.wav");
+		clip2 = new AudioClip(resource2.toString());
+		URL resource3 = getClass().getResource("Scream+9.wav");
+		clipDead = new AudioClip(resource3.toString());
 
 		animate = new AnimateObjects();
 		animate.start();
 		stage.show();
+		System.out.println("Player 1:\nJump: W\nLeft: A\nRight: D\nCrouch: S\n\nPlayer 2:\nJump: UP\nLeft: LEFT\nRight: RIGHT\nCrouch: DOWN");
 		scene.addEventHandler(KeyEvent.KEY_PRESSED, this);
 		scene.addEventHandler(KeyEvent.KEY_RELEASED,this);
 		scene.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
 	}
 	public void clear(){
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+	}
+	public void deathScreen(){
+		clear();
+		gc.drawImage(background,0 ,0);
+		gc.drawImage(stance1, 180+fighter1.getXpos(), 180-fighter1.getYpos());
+		gc.drawImage(stance2, 500+fighter2.getXpos(), 180-fighter2.getYpos());
+
+		f1Label.setX(180+fighter1.getXpos()); //fighter labels
+		f1Label.setY(100-fighter1.getYpos());
+		f2Label.setX(500+fighter2.getXpos());
+		f2Label.setY(100-fighter2.getYpos());
+
+		gc.setFill(Color.RED); //health bar
+		gc.fillRect(25,300,300,10);
+		gc.fillRect(425,300,300,10);
+
+		gc.setFill(Color.GREEN);
+		gc.fillRect(25,300, (int)(300 * (double)fighter2.getHealth()/(double)fighter2.getMaxHealth()),10);
+		gc.fillRect(425,300, (int)(300 * (double)fighter1.getHealth()/(double)fighter1.getMaxHealth()) ,10);
 	}
 }

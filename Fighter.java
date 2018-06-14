@@ -19,7 +19,7 @@ public class Fighter{
 	private int health, maxHealth, damage, speed, xPos, yPos;
 	private double critChance, maxCrit;
 
-	private Image start, punch, kick, crouch, startL, punchL, kickL, crouchL;
+	private Image start, punch, kick, crouch, startL, punchL, kickL, crouchL, dead;
 
 	private boolean left;
 
@@ -29,12 +29,12 @@ public class Fighter{
 	private boolean isPunching, isKicking;
 	private int punchDelay, kickDelay, punchTime, kickTime;
 
-	boolean demobilized;
-	int demobilizedTime, demobilizedDelay;
+	private boolean demobilized;
+	private int demobilizedTime, demobilizedDelay;
 
-	boolean atBounds;
+	private boolean atBounds;
+	private boolean hasFireball;//NEW
 
-	boolean hasFireball;//NEW
 
 	public Fighter(boolean l){
 		health = 3000;
@@ -50,6 +50,8 @@ public class Fighter{
 		atBounds = false;
 		jumpTime = 0;
 		jumpSpeed = 10;
+		dead = new Image("defaultDead.png");
+
 
 		if(l) {
 			start = new Image("defaultStart.png");
@@ -59,7 +61,7 @@ public class Fighter{
 			startL = new Image("defaultStartL.png");
 			punchL = new Image("defaultPunchL.png");
 			kickL = new Image("defaultKickL.png");
-			crouchL = new Image("defaultCrouchL.png");
+			crouchL = new Image("defaultCrouchL.PNG");
 		}
 		else {
 			startL = new Image("defaultStart.png");
@@ -69,7 +71,7 @@ public class Fighter{
 			start = new Image("defaultStartL.png");
 			punch = new Image("defaultPunchL.png");
 			kick = new Image("defaultKickL.png");
-			crouch = new Image("defaultCrouchL.png");
+			crouch = new Image("defaultCrouchL.PNG");
 		}
 	}
 
@@ -94,6 +96,9 @@ public class Fighter{
 			return crouchL;
 		return crouch;
 	}
+	public Image getDead(){
+		return dead;
+	}
 	public boolean getLeft(){
 		return left;
 	}
@@ -116,6 +121,12 @@ public class Fighter{
 	public void move(double x, double y){
 		xPos -= x;
 		yPos += y;
+	}
+	public void setYpos(int y){
+		yPos = y;
+	}
+	public void setXpos(int x){
+		xPos = x;
 	}
 	public boolean getIsJumping(){
 		return isJumping;
@@ -221,11 +232,11 @@ public class Fighter{
 	public void setAtBounds(boolean b){
 		atBounds = b;
 	}
-
 	public boolean getFireball(){ //NEW
 		return hasFireball;
 	}
 	public void setFireball(boolean b){
 		hasFireball = b;
 	}
+
 }
