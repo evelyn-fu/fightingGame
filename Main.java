@@ -443,6 +443,7 @@ public class Main extends Application implements EventHandler<InputEvent>
 				ySpeed1 = 0;
 				xSpeed2 = 0;
 				ySpeed2 = 0;
+				timer = 0;
 				fighter1.setIsJumping(false);
 				fighter1.setJumpTime(0);
 				fighter1.setPunching(false);
